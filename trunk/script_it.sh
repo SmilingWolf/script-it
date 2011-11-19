@@ -19,12 +19,38 @@ for MD5 in $LIST
   DLIST=`grep $MD5 /tmp/hashes_files.tmp | head -1 | cut -b 35- | cut -b 16-`
   cp "$ULIST" "B/UniqueCaps/$DLIST"
 done
+rm /tmp/hashes_files.tmp
 echo "Done."
 echo "Remaining packets:"
 ls -lh B/UniqueCaps/*
+mkdir B/BadCaps
+for f in B/UniqueCaps/*
+  do
+  l=`wpaclean /dev/null "$f" | wc -l`
+  if [ $l == 2 ];
+    then
+    NewPos=`echo -n "$f" | cut -b 14-`
+    echo "Bad capture file found!!! Moving it to B/BadCaps/$NewPos"
+    mv "$f" "B/BadCaps/$NewPos"
+  fi  
+done
+mkdir B/ReallyUniqueCaps
+for f in B/UniqueCaps/*
+  do
+  BSSID=`wpaclean /dev/null "$f" | cut -d' ' -f 2 | tail -2 | head -1`
+  echo "$BSSID $f">> /tmp/bssids_files.tmp
+done
+LIST=`cat /tmp/bssids_files.tmp | cut -b -17 | sort | uniq`
+for BSSIDS in $LIST
+  do
+  ULIST=`grep $BSSIDS /tmp/bssids_files.tmp | head -1 | cut -b 19-`
+  DLIST=`grep $BSSIDS /tmp/bssids_files.tmp | head -1 | cut -b 19- | cut -b 14-`
+  cp "$ULIST" "B/ReallyUniqueCaps/$DLIST"
+done
+rm /tmp/bssids_files.tmp
 mkdir B/CleanCaps
 c=1
-for f in B/UniqueCaps/*
+for f in B/ReallyUniqueCaps/*
   do
   l=`wpaclean /dev/null "$f" | tail -2 | head -1 | cut -b 23-`
   if [ -e "B/CleanCaps/$l clean.cap" ];
