@@ -1,0 +1,1 @@
+Script\_it is a simple Bash script which simply Strips, Cleans and Converts your WPA capture files from .cap format in the .hccap (HashCat cap) format so you can use them with cuda/oclHashCat-plus by Atom now that it has WPA cracking capability.
